@@ -1,0 +1,41 @@
+server:
+  port: 8769
+spring:
+  application:
+    name: service-zuul
+  redis:
+    host: 192.168.100.101
+    port: 6379
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://192.168.100.101:8761/eureka/
+  instance:
+      prefer-ip-address: true
+
+zuul:
+  host:
+    connect-timeout-millis: 10000
+    socket-timeout-millis: 60000
+  routes:
+    gensoft-users:
+      path: /gensoft-users/v1/**
+#      serviceId: salary-query
+  ratelimit:
+    key-prefix: your-prefix
+    enabled: true
+    repository: REDIS
+    behind-proxy: true
+    default-policy-list: #optional - will apply unless specific policy exists
+      - limit: 10 #optional - request number limit per refresh interval window
+        quota: 1000 #optional - request time limit per refresh interval window (in seconds)
+        refresh-interval: 60 #default value (in seconds)
+        type: #optional
+          - url
+    policy-list:
+      gensoft-users:
+        - limit: 10 #optional - request number limit per refresh interval window
+          quota: 1000 #optional - request time limit per refresh interval window (in seconds)
+          refresh-interval: 30 #default value (in seconds)
+          type: #optional
+            - url
